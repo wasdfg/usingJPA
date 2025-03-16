@@ -1,6 +1,5 @@
 package com.usingJPA;
 
-import com.usingJPA.RoleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,11 +20,11 @@ import java.util.Date;
 @Entity
 @Getter
 @Setter
-@Table(name = "MEMBER",uniqueConstraints = {@UniqueConstraint(
+@Table(name = "MEMBER_EXAMPLE",uniqueConstraints = {@UniqueConstraint(
         name = "NAME_AGE_UNIQUE",
         columnNames = {"NAME","AGE"}
 )}) //이름과 나이의 유니크 제약조건을 건다
-public class Member {
+public class MemberExample {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
