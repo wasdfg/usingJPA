@@ -20,7 +20,7 @@ public class MemberController {
 
     public void mainpage() {
         String username = "";
-        Member memberList = this.memberService.getmember(username);
+        MemberExample memberList = this.memberService.getmember(username);
     }
 
     public void apply() {
@@ -37,19 +37,19 @@ public class MemberController {
             //logic(em);
             //logic1(em); //커밋되기 전 모든 엔티티는 내부 저장소에 저장되고 쓰기 지연 상태로 된다.
             //logic2(em);
-            logic3(em); //detach된 엔티티는 commit에 반영되지 않음
+            //logic3(em); //detach된 엔티티는 commit에 반영되지 않음
             tx.commit(); //커밋 순간에 insert를 실행 만약 쓰기 지연 저장소의 데이터 중 변경 사항이 감지되면 update도 실행해주고 commit
         } catch (Exception e) {
             tx.rollback();
         } finally {
             em.close(); //영속성 컨텍스트 종료
         }
-        emf.close();
+        //emf.close();
     }
 
     private static void logic(EntityManager em) {
         //String id = "id1";
-        Member member = new Member();
+        MemberExample member = new MemberExample();
         //member.setId();
         member.setUsername("지한");
         member.setAge(2);
@@ -57,7 +57,7 @@ public class MemberController {
         em.persist(member); //엔티티매핑
         member.setAge(20); //update
 
-        Member findMember = em.find(Member.class, member.getId());
+        MemberExample findMember = em.find(MemberExample.class, member.getId());
         System.out.println("findMemeber=" + findMember.getUsername() + ", age=" + findMember.getAge());
 
         List<Members> members = em.createQuery("select m from Member m", Members.class).getResultList();
@@ -69,27 +69,27 @@ public class MemberController {
     }
 
     private static void logic1(EntityManager em) {
-        Member member = new Member();
+        MemberExample member = new MemberExample();
         //member.setId("member1");
         member.setUsername("회원1");
         member.setAge(2);
 
         em.persist(member); //엔티티 매핑
-        Member findmember1 = em.find(Member.class, 1L); //캐시에 있는지 찾아봄  //있기에 찾음
-        Member findmember2 = em.find(Member.class, 2L); //캐시에 있는지 찾아봄 //없기에 db에 새로 데이터를 입력
+        MemberExample findmember1 = em.find(MemberExample.class, 1L); //캐시에 있는지 찾아봄  //있기에 찾음
+        MemberExample findmember2 = em.find(MemberExample.class, 2L); //캐시에 있는지 찾아봄 //없기에 db에 새로 데이터를 입력
 
 
-        Member a = em.find(Member.class, 1L);
-        Member b = em.find(Member.class, 2L);
+        MemberExample a = em.find(MemberExample.class, 1L);
+        MemberExample b = em.find(MemberExample.class, 2L);
         System.out.println(a == b); //같은 캐시에서 가져오는 값이기에 같은 엔티티 인스턴스이다
         em.remove(member);
     }
 
     private static void logic2(EntityManager em) {
 
-        Member memberA = em.find(Member.class, 1L);
+        MemberExample memberA = em.find(MemberExample.class, 1L);
         if(memberA == null){ //만약 엔티티를 찾지 못한다면 생성해줌
-            memberA = new Member();
+            memberA = new MemberExample();
             //memberA.setId("memberA");
             memberA.setAge(123);
             memberA.setUsername("1234");
@@ -103,7 +103,7 @@ public class MemberController {
     }
 
     private static void logic3(EntityManager em) {
-        Member memberA = new Member();
+        MemberExample memberA = new MemberExample();
         //memberA.setId("memberA");
         memberA.setAge(123);
         memberA.setUsername("1234");
@@ -122,6 +122,8 @@ public class MemberController {
     public void testSave(){
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
+        /*
+        tx.begin();
         Team team1 = new Team();
         team1.setId("team1");
         team1.setName("팀1");
@@ -131,12 +133,63 @@ public class MemberController {
         member1.setTeam(team1);
         member1.setId("memeber1");
         member1.setUsername("회원1");
+        team1.getMembers().add(member1);
         em.persist(member1);
 
-        Members memeber2 = new Members();
-        memeber2.setTeam(team1);
-        member1.setId("memeber1");
-        member1.setUsername("회원1");
-        em.persist(memeber2);
+        Members member2 = new Members();
+        member2.setTeam(team1);
+        member2.setId("member2");
+        member2.setUsername("회원2");
+        team1.getMembers().add(member2); //양방향을 위해 모두 설정해줌
+        em.persist(member2);
+        tx.commit();
+        */
+        //queryLogicJoin(em);
+        //tx.begin();
+        //updateRelation(em);
+        //tx.commit();
+        checkbidirection(em);
+        em.close();
+        emf.close();
+    }
+
+    private static void queryLogicJoin(EntityManager em){
+        String jpql = "select m from Members m join m.team t where " +
+                        "t.name = :teamName";
+
+        List<Members> resultList = em.createQuery(jpql,Members.class)
+                                .setParameter("teamName","팀1")
+                                .getResultList();
+
+        for(Members members: resultList){
+            System.out.println("[query] members.username=" + members.getUsername());
+        }
+    }
+
+    private static void updateRelation(EntityManager em){
+        Team team2 = new Team();
+        team2.setId("team2");
+        team2.setName("팀2");
+        em.persist(team2);
+
+        Members members = em.find(Members.class,"member1"); //pk값이 member1인 객체를 가져옴
+        members.setTeam(team2); //객체의 팀을 update
+
+        Members members1 = em.find(Members.class,"member1");
+        members1.setTeam(null); //외래키 종속 제거
+        
+        em.remove(team2); //팀삭제
+    }
+
+    public void checkbidirection(EntityManager em){
+        Team team = em.find(Team.class,"team1");
+
+        List<Members> members = team.getMembers();
+
+        System.out.println(members.size());
+
+        for(Members member: members){
+            System.out.println("members.username = "+member.getUsername());
+        }
     }
 }
