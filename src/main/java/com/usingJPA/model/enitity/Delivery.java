@@ -2,39 +2,37 @@ package com.usingJPA.model.enitity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
-public class Member {
+public class Delivery {
     @Id
     @GeneratedValue
-    @Column(name = "MEMBER_ID")
+    @Column(name = "DELIVERY_ID")
     private Long id;
 
-    private String name;
+    @OneToOne(mappedBy = "delivery")
+    private Orders orders;
 
     private String city;
-
     private String street;
-
     private String zipcode;
 
-    @OneToMany(mappedBy = "member")
-    private List<Orders> orders = new ArrayList<Orders>();
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus status; //ENUM [READY(준비), COMP(배송)]
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOrders(Orders orders) {
+        this.orders = orders;
     }
 
     public void setCity(String city) {
@@ -49,7 +47,7 @@ public class Member {
         this.zipcode = zipcode;
     }
 
-    public void setOrders(List<Orders> orders) {
-        this.orders = orders;
+    public void setStatus(DeliveryStatus status) {
+        this.status = status;
     }
 }

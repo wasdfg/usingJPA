@@ -9,20 +9,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Entity
 @Getter
+@Entity
 @Table(name = "ORDERS")
-public class Order {
+public class Orders {
     @Id
     @GeneratedValue
     @Column(name = "ORDER_ID")
@@ -35,18 +33,17 @@ public class Order {
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @OneToOne
+    @JoinColumn(name = "DELIVERY_ID")
+    private Delivery delivery;
+
     private Date orderDate;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setMember(Member member) {
-        if(this.member != null) {
+    public void setMember(Member member){
+        if(this.member != null){
             this.member.getOrders().remove(this);
         }
         this.member = member;
@@ -55,7 +52,20 @@ public class Order {
 
     public void addOrderItem(OrderItem orderItem){
         orderItems.add(orderItem);
-        orderItem.setOrder(this);
+        orderItem.setOrders(this);
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
+        delivery.setOrders(this);
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
     }
 
     public void setOrderDate(Date orderDate) {
@@ -64,5 +74,14 @@ public class Order {
 
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", orderDate=" + orderDate +
+                ", status=" + status +
+                '}';
     }
 }

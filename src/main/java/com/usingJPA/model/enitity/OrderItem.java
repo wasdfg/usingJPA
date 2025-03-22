@@ -8,7 +8,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -25,7 +24,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name ="ORDER_ID")
-    private Order order;
+    private Orders orders;
 
     private int orderPrice;
 
@@ -43,8 +42,8 @@ public class OrderItem {
         this.item = item;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrders(Orders orders) {
+        this.orders = orders;
     }
 
     public void setOrderPrice(int orderPrice) {
