@@ -1,9 +1,12 @@
 package com.usingJPA.model.enitity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToMany;
 import lombok.Getter;
 
@@ -12,7 +15,9 @@ import java.util.List;
 
 @Entity
 @Getter
-public class Item {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "DTYPE")
+public abstract class Item {
     @Id
     @GeneratedValue
     @Column(name = "ITEM_ID")
