@@ -20,7 +20,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "ORDERS")
-public class Orders {
+public class Orders extends BaseEntity{
     @Id
     @GeneratedValue
     @Column(name = "ORDER_ID")
@@ -30,7 +30,7 @@ public class Orders {
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
 
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "orders")
     private List<OrderItem> orderItems = new ArrayList<OrderItem>();
 
     @OneToOne
